@@ -1,6 +1,6 @@
 import express from "express";
 import createHttpError from "http-errors";
-import BookModel from "././models/books.js";
+import BookModel from "../../models/book.js";
 
 const booksRouter = express.Router();
 
