@@ -19,7 +19,9 @@ const bookSchema = new Schema(
     genre: {
       type: String,
       required: true,
+      enum: ["horror", "fantasy", "history", "romance"],
     },
+    price: { type: Number, required: true },
   },
   { timeStamps: true }
 );
