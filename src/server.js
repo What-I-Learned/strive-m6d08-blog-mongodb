@@ -5,8 +5,13 @@ import {
   notFoundHandler,
   badRequestHandler,
   genericErrorHandler,
+  unauthorizedHandler,
+  forbiddenHandler,
+  catchAllHandler,
 } from "./errorHandlers/errorHandlers.js";
 import booksRouter from "./services/books/index.js";
+import usersRouter from "./services/users/index.js";
+
 const server = express();
 
 const { PORT = 5000 } = process.env;
@@ -16,6 +21,7 @@ server.use(cors());
 server.use(express.json());
 
 server.use("/books", booksRouter);
+server.use("/users", usersRouter);
 // mongoose
 //   .connect(process.env.MONGODB, {})
 //   .then((result) => {
@@ -24,6 +30,9 @@ server.use("/books", booksRouter);
 //   })
 //   .catch((err) => console.log(err));
 
+server.use(unauthorizedHandler);
+server.use(forbiddenHandler);
+server.use(catchAllHandler);
 server.use(notFoundHandler);
 server.use(badRequestHandler);
 server.use(genericErrorHandler);
