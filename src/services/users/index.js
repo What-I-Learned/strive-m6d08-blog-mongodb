@@ -1,76 +1,103 @@
 import express from "express";
-import UserSchema from "../../models/user.js";
-
-import { basicAuthMiddleware } from "../../auth/basic.js";
+import UserModel from "../../schemas/user.js";
+import { JWTAuthenticate } from "../../auth/tokenBasics.js";
 import { adminOnlyMiddleware } from "../../auth/admin.js";
+import { userAuthMiddleware } from "../../auth/authMiddleware.js";
 
-const usersRouter = express.Router();
+const userRouter = express.Router();
 
-usersRouter.post("/register", async (req, res, next) => {
+userRouter.post("/register", async (req, res, next) => {
   try {
-    const newUser = new UserSchema(req.body);
-    const { _id } = await newUser.save();
+    const newUser = new UserModel(req.body);
+    await newUser.save();
     res.send(newUser);
   } catch (error) {
     next(error);
   }
 });
 
-usersRouter.get(
-  "/",
-  basicAuthMiddleware,
-  adminOnlyMiddleware,
-  async (req, res, next) => {
-    try {
-      const users = await UserSchema.find();
-      res.send(users);
-    } catch (error) {
-      next(error);
+userRouter.post("/login", async (req, res, next) => {
+  try {
+    // 1. Get email and password from req.body
+    const { email, password } = req.body;
+    // 2. Verify credentials
+    const user = await UserModel.checkCredentials(email, password);
+    if (user) {
+      console.log(user);
+      // 3. If credentials are ok we are going to generate access token
+      const accessToken = await JWTAuthenticate(user);
+      res.send({ accessToken });
+    } else {
+      next(createHttpError(401, "Credtials are wrong"));
     }
+  } catch (err) {
+    next(err);
   }
-);
+});
 
-usersRouter.get("/me", basicAuthMiddleware, async (req, res, next) => {
+userRouter.get("/", userAuthMiddleware, async (req, res, next) => {
+  try {
+    const users = await UserModel.find();
+    res.send(users);
+  } catch (err) {
+    next(error);
+  }
+});
+
+userRouter.get("/me", userAuthMiddleware, async (req, res, next) => {
   try {
     res.send(req.user);
-  } catch (error) {
+  } catch (err) {
     next(error);
   }
 });
 
-usersRouter.put("/me", basicAuthMiddleware, async (req, res, next) => {
+userRouter.put("/me", userAuthMiddleware, async (req, res, next) => {
   try {
-    req.user.name = "John";
-    await req.user.save();
+    const modifiedProfile = await UserModel.findByIdAndUpdate(
+      req.user._id,
+      req.body,
+      { new: true }
+    );
 
-    res.send();
-  } catch (error) {
+    res.send(modifiedProfile);
+  } catch (err) {
     next(error);
   }
 });
 
-usersRouter.delete("/me", basicAuthMiddleware, async (req, res, next) => {
+userRouter.delete("/me", userAuthMiddleware, async (req, res, next) => {
   try {
     await req.user.deleteOne();
 
-    res.send();
-  } catch (error) {
+    res.send("deleted");
+  } catch (err) {
     next(error);
   }
 });
 
-usersRouter.get(
+userRouter.get(
   "/:id",
-  basicAuthMiddleware,
+  userAuthMiddleware,
   adminOnlyMiddleware,
   async (req, res, next) => {
     try {
-      const users = await UserSchema.findById(req.params.id);
+      const users = await UserModel.findById(req.params.id);
       res.send(users);
-    } catch (error) {
+    } catch (err) {
       next(error);
     }
   }
 );
 
-export default usersRouter;
+userRouter.post("/logout", userAuthMiddleware, async (req, res, next) => {
+  try {
+    req.user.accessToken = null;
+    await req.user.save();
+    res.send();
+  } catch (error) {
+    next(err);
+  }
+});
+
+export default userRouter;

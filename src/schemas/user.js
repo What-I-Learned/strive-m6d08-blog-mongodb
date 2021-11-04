@@ -8,6 +8,7 @@ const UserSchema = new Schema({
   surname: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
+  //posts: [{ type: Schema.Types.ObjectId, required: true, ref: "Post" }],
   role: { type: String, default: "User", enum: ["User", "Admin"] },
 });
 

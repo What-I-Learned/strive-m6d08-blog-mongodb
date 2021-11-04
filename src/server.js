@@ -9,8 +9,8 @@ import {
   forbiddenHandler,
   catchAllHandler,
 } from "./errorHandlers/errorHandlers.js";
-import booksRouter from "./services/books/index.js";
 import usersRouter from "./services/users/index.js";
+import postRouter from "./services/posts/index.js";
 
 const server = express();
 
@@ -20,7 +20,7 @@ server.use(cors());
 
 server.use(express.json());
 
-server.use("/books", booksRouter);
+server.use("/posts", postRouter);
 server.use("/users", usersRouter);
 // mongoose
 //   .connect(process.env.MONGODB, {})
