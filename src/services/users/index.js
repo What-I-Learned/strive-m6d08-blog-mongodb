@@ -1,5 +1,6 @@
 import express from "express";
 import UserModel from "../../schemas/user.js";
+import passport from "passport";
 import { JWTAuthenticate } from "../../auth/tokenBasics.js";
 import { adminOnlyMiddleware } from "../../auth/admin.js";
 import { userAuthMiddleware } from "../../auth/authMiddleware.js";
@@ -34,6 +35,26 @@ userRouter.post("/login", async (req, res, next) => {
     next(err);
   }
 });
+
+// receives google login request from our FE and redirect them to google
+userRouter.get(
+  "/googleLogin",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+//receives the response from google
+userRouter.get(
+  "/googleRedirect",
+  passport.authenticate("google"),
+  async (req, res, next) => {
+    try {
+      console.log(req.user);
+      // res.redirect(`http://localhost:3030?accessToken=${req.user.accessToken}`);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 userRouter.get("/", userAuthMiddleware, async (req, res, next) => {
   try {

@@ -9,6 +9,10 @@ import {
   forbiddenHandler,
   catchAllHandler,
 } from "./errorHandlers/errorHandlers.js";
+import passport from "passport";
+import GoogleStrategy from "./auth/oauth.js";
+
+// import Routes
 import usersRouter from "./services/users/index.js";
 import postRouter from "./services/posts/index.js";
 
@@ -17,8 +21,9 @@ const server = express();
 const { PORT = 5000 } = process.env;
 
 server.use(cors());
-
 server.use(express.json());
+// GOOGLE 
+server.use(passport.initialize())
 
 server.use("/posts", postRouter);
 server.use("/users", usersRouter);
