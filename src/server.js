@@ -10,20 +10,24 @@ import {
   catchAllHandler,
 } from "./errorHandlers/errorHandlers.js";
 import passport from "passport";
-import GoogleStrategy from "./auth/oauth.js";
+import { googleStrategy, facebookStrategy } from "./auth/oauth.js";
 
 // import Routes
 import usersRouter from "./services/users/index.js";
 import postRouter from "./services/posts/index.js";
 
 const server = express();
-
 const { PORT = 5000 } = process.env;
+
+// MIDDLEWARES
+
+passport.use("google", googleStrategy);
+passport.use("facebook", facebookStrategy);
 
 server.use(cors());
 server.use(express.json());
-// GOOGLE 
-server.use(passport.initialize())
+// GOOGLE
+server.use(passport.initialize());
 
 server.use("/posts", postRouter);
 server.use("/users", usersRouter);

@@ -49,9 +49,25 @@ userRouter.get(
   async (req, res, next) => {
     try {
       console.log(req.user);
-      // res.redirect(`http://localhost:3030?accessToken=${req.user.accessToken}`);
+      res.redirect(`http://localhost:3000?accessToken=${req.user.accessToken}`);
     } catch (error) {
       next(error);
+    }
+  }
+);
+
+userRouter.get(
+  "/facebookLogin",
+  passport.authenticate("facebook", { scope: ["profile", "email"] })
+);
+userRouter.get(
+  "/facebookRedirect",
+  passport.authenticate("facebook"),
+  async (req, res, next) => {
+    try {
+      console.log(req.user);
+    } catch (err) {
+      next(err);
     }
   }
 );

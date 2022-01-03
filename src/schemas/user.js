@@ -11,6 +11,7 @@ const UserSchema = new Schema({
   //posts: [{ type: Schema.Types.ObjectId, required: true, ref: "Post" }],
   role: { type: String, default: "User", enum: ["User", "Admin"] },
   googleId: { type: String, required: false },
+  facebookId: { type: String, required: false },
 });
 
 UserSchema.pre("save", async function (next) {
@@ -28,7 +29,6 @@ UserSchema.pre("save", async function (next) {
 
 UserSchema.methods.toJSON = function () {
   // this is executed automatically EVERY TIME express does a res.send
-
   const userDocument = this;
   const userObject = userDocument.toObject();
   delete userObject.password; // THIS IS NOT GOING TO AFFECT THE DATABASES
